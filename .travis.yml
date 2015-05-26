@@ -10,8 +10,8 @@ before_install:
 python:
   - "2.7"
 install:
-  - "dpkg -i thirdparty/Nessus-6.3.7-ubuntu1110_i386.deb"
-  - "/etc/init.d/nessusd start"
+  - "sudo dpkg -i thirdparty/Nessus-6.3.7-ubuntu1110_i386.deb"
+  - "sudo /etc/init.d/nessusd start"
   - "pip install -r requirements.txt"
 script: 
   - "python setup.py test"
