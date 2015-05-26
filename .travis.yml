@@ -1,0 +1,17 @@
+language:
+  - python
+  - cpp
+compiler:
+  - gcc
+  - clang
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install libgmp-dev python-dev python-pip python-twisted
+python:
+  - "2.7"
+install:
+  - "dpkg -i thirdparty/Nessus-6.3.7-ubuntu1110_i386.deb"
+  - "/etc/init.d/nessusd start"
+  - "pip install -r requirements.txt"
+script: 
+  - "python setup.py test"
