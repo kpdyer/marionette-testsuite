@@ -6,14 +6,11 @@ compiler:
   - clang
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get -qq install nmap
-  - sudo apt-get -qq install libc6 zlib1g
   - sudo apt-get -qq install libgmp-dev python-dev python-pip python-twisted
+  - sudo apt-get -qq install nmap
 python:
   - "2.7"
 install:
-  - "sudo dpkg -i thirdparty/Nessus-6.3.7-ubuntu1110_i386.deb"
-  - "sudo /etc/init.d/nessusd start"
   - "sudo pip install -r requirements.txt"
 script: 
   - "python setup.py test"
