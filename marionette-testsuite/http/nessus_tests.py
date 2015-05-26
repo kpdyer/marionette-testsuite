@@ -6,7 +6,6 @@ import unittest
 import requests
 import json
 import time
-import sys
 
 import marionette.conf
 
