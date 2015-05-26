@@ -7,7 +7,7 @@ import time
 
 import nmap
 
-import marionette.conf
+import marionette_tg.conf
 
 def execute(cmd):
     os.system(cmd)
@@ -15,7 +15,7 @@ def execute(cmd):
 class Tests(unittest.TestCase):
 
     def startservers(self, format):
-        server_proxy_iface = marionette.conf.get("server.proxy_iface")
+        server_proxy_iface = marionette_tg.conf.get("server.proxy_iface")
 
         execute("marionette_server %s 8888 %s &" %
                 (server_proxy_iface, format))

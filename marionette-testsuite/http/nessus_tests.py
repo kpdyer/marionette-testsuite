@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-import marionette.conf
+import marionette_tg.conf
 
 url = 'https://127.0.0.1:8834'
 verify = False
@@ -284,7 +284,7 @@ def execute(cmd):
 class Tests(unittest.TestCase):
 
     def startservers(self, format):
-        server_proxy_iface = marionette.conf.get("server.proxy_iface")
+        server_proxy_iface = marionette_tg.conf.get("server.proxy_iface")
 
         execute("marionette_server %s 8888 %s &" %
                 (server_proxy_iface, format))
