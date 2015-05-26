@@ -1,7 +1,5 @@
+marionette-tg
 python-nmap
-
 pyopenssl
 pyasn1
 ndg-httpsclient
-
-minidom
