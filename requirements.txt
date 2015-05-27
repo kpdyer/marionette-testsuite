@@ -1,8 +1,5 @@
 marionette-tg
 python-nmap
-
-# for nessus
-#pyopenssl
-#pyasn1
-#requests
-#ndg-httpsclient
+requests
+pyopenssl
+pyasn1

@@ -24,19 +24,21 @@ class Tests(unittest.TestCase):
     def stopservers(self):
         execute("pkill -9 -f marionette_server")
 
-    def test_active_probing_http_nmap(self):
+    def test_active_probing_ftp_nmap(self):
         try:
-            self.startservers("active_probing/http_apache_247")
+            self.startservers("active_probing/ftp_pureftpd_10")
             remote_host = '127.0.0.1'
-            remote_port = '8080'
+            remote_port = '2121'
 
             nm = nmap.PortScanner()
             nm.scan(remote_host, remote_port)
             tcp_obj = nm[remote_host].tcp(int(remote_port))
 
-            self.assertEqual(tcp_obj['name'],    'http')
-            self.assertEqual(tcp_obj['product'], 'Apache httpd')
-            self.assertEqual(tcp_obj['version'], '2.4.7')
+            print tcp_obj
+            self.assertEqual(tcp_obj['name'],    'ftp')
+            self.assertEqual(tcp_obj['product'], 'Pure-FTPd')
+            self.assertEqual(tcp_obj['version'], '')
+            self.assertEqual(tcp_obj['cpe'],     'cpe:/a:pureftpd:pure-ftpd')
         finally:
             self.stopservers()
 

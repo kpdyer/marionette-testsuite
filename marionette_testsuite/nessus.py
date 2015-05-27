@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-import os
-import unittest
 import requests
 import json
 import time
-
-import marionette_tg.conf
+import sys
+from xml.dom import minidom
 
 url = 'https://127.0.0.1:8834'
 verify = False
@@ -227,11 +222,7 @@ def download(sid, fid):
     """
 
     data = connect('GET', '/scans/{0}/export/{1}/download'.format(sid, fid))
-    #filename = 'nessus_{0}_{1}.nessus'.format(sid, fid)
 
-    #print('Saving scan results to {0}.'.format(filename))
-    #with open(filename, 'w') as f:
-    #    f.write(data)
     return data
 
 
@@ -256,10 +247,8 @@ def history_delete(sid, hid):
 
     connect('DELETE', '/scans/{0}/history/{1}'.format(sid, hid))
 
-import sys
-from xml.dom import minidom
 
-def eval_plugin_output(nessus_output, plugin_id, protocol, port, fingerprint):
+def eval_plugin_output(nessus_output, plugin_id, protocol, port, svc_name, fingerprint):
     xmldoc = minidom.parseString(nessus_output)
     itemlist = xmldoc.getElementsByTagName('ReportItem')
 
@@ -268,7 +257,8 @@ def eval_plugin_output(nessus_output, plugin_id, protocol, port, fingerprint):
         right_plugin_id = int(item.attributes['pluginID'].value) == int(plugin_id)
         right_protocol  = str(item.attributes['protocol'].value) == str(protocol)
         right_port      = int(item.attributes['port'].value)     == int(port)
-        if right_plugin_id and right_port and right_protocol:
+        right_svc      = str(item.attributes['svc_name'].value) == str(svc_name)
+        if right_plugin_id and right_port and right_protocol and right_svc:
             for child in item.getElementsByTagName('plugin_output'):
                 if child.firstChild.nodeValue:
                     plugin_output = child.firstChild.nodeValue
@@ -277,55 +267,25 @@ def eval_plugin_output(nessus_output, plugin_id, protocol, port, fingerprint):
     return (fingerprint in plugin_output)
 
 
-def execute(cmd):
-    os.system(cmd)
+def do_scan(target):
+    global token
 
+    token = login(username, password)
 
-class Tests(unittest.TestCase):
+    policies = get_policies()
+    policy_id = policies['Basic Network Scan']
+    scan_data = add('Test Scan', 'Create a new scan with API', target, policy_id)
+    scan_id = scan_data['id']
 
-    def startservers(self, format):
-        server_proxy_iface = marionette_tg.conf.get("server.proxy_iface")
+    scan_uuid = launch(scan_id)
+    history_ids = get_history_ids(scan_id)
+    history_id = history_ids[scan_uuid]
+    while status(scan_id, history_id) != 'completed':
+        time.sleep(1)
 
-        execute("marionette_server %s 8888 %s &" %
-                (server_proxy_iface, format))
-        time.sleep(0.25)
+    file_id = export(scan_id, history_id)
+    data = download(scan_id, file_id)
 
-    def stopservers(self):
-        execute("pkill -9 -f marionette_server")
+    logout()
 
-    def test_active_probing1(self):
-        global token
-        try:
-            self.startservers("nmap/kpdyer.com")
-
-            print('Login')
-            token = login(username, password)
-
-            print('Adding new scan.')
-            policies = get_policies()
-            policy_id = policies['Basic Network Scan']
-            scan_data = add('Test Scan', 'Create a new scan with API', '127.0.0.1', policy_id)
-            scan_id = scan_data['id']
-
-            print('Launching new scan.')
-            scan_uuid = launch(scan_id)
-            history_ids = get_history_ids(scan_id)
-            history_id = history_ids[scan_uuid]
-            while status(scan_id, history_id) != 'completed':
-                time.sleep(5)
-
-            print('Exporting the completed scan.')
-            file_id = export(scan_id, history_id)
-            data = download(scan_id, file_id)
-
-            self.assertTrue(eval_plugin_output(data, 10107, 'tcp',
-                                               8080, 'Apache/2.4.7 (Ubuntu)'))
-
-            print('Logout')
-            logout()
-        finally:
-            self.stopservers()
-
-
-if __name__ == '__main__':
-    unittest.main()
+    return data

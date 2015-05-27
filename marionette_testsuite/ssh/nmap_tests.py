@@ -24,19 +24,21 @@ class Tests(unittest.TestCase):
     def stopservers(self):
         execute("pkill -9 -f marionette_server")
 
-    def test_active_probing_http_nmap(self):
+    def test_active_probing_ssh_nmap(self):
         try:
-            self.startservers("active_probing/http_apache_247")
+            self.startservers("active_probing/ssh_openssh_661")
             remote_host = '127.0.0.1'
-            remote_port = '8080'
+            remote_port = '2222'
 
             nm = nmap.PortScanner()
             nm.scan(remote_host, remote_port)
             tcp_obj = nm[remote_host].tcp(int(remote_port))
 
-            self.assertEqual(tcp_obj['name'],    'http')
-            self.assertEqual(tcp_obj['product'], 'Apache httpd')
-            self.assertEqual(tcp_obj['version'], '2.4.7')
+            print tcp_obj
+            self.assertEqual(tcp_obj['name'],    'ssh')
+            self.assertEqual(tcp_obj['product'], '')
+            self.assertEqual(tcp_obj['version'], '')
+            self.assertEqual(tcp_obj['extrainfo'], 'protocol 2.0')
         finally:
             self.stopservers()
 
