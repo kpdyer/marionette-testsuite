@@ -5,7 +5,8 @@ from setuptools import setup
 
 setup(name='marionette_testsuite',
       test_suite='marionette_testsuite',
-      packages=['marionette_testsuite','marionette_testsuite.http'],
+      packages=['marionette_testsuite',
+                'marionette_testsuite.http'],
       version='0.0.1',
       description='Marionette Test Suite',
       author='Kevin P. Dyer',
