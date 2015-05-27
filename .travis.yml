@@ -7,7 +7,7 @@ compiler:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install libgmp-dev python-dev python-pip python-twisted
-  - sudo apt-get -qq install nmap
+  - sudo apt-get -qq install nmap python-nmap
 python:
   - "2.7"
 install:
