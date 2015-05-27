@@ -19,3 +19,5 @@ install:
   - "sudo pip install -r requirements.txt"
 script: 
   - "sudo python marionette_testsuite/http/nmap_tests.py"
+  - "sudo python marionette_testsuite/ssh/nmap_tests.py"
+  - "sudo python marionette_testsuite/ftp/nmap_tests.py"
