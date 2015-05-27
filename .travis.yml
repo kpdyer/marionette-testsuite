@@ -7,11 +7,15 @@ compiler:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install libgmp-dev python-dev python-pip python-twisted
-  - sudo apt-get -qq install nmap python-nmap
+  - sudo apt-get -qq install nmap
+  - wget http://xael.org/norman/python/python-nmap/python-nmap-0.1.4.tar.gz
+  - tar xvzf python-nmap-0.1.4.tar.gz
+  - cd python-nmap-0.1.4
+  - python setup.py install
+  - cd ..
 python:
   - "2.7"
 install:
   - "sudo pip install -r requirements.txt"
 script: 
   - "python marionette_testsuite/http/nmap_tests.py"
-#  - "python setup.py test"
