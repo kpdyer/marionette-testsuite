@@ -35,7 +35,7 @@ class Tests(unittest.TestCase):
             tcp_obj = nm[remote_host].tcp(int(remote_port))
 
             self.assertEqual(tcp_obj['name'],    'ftp')
-            self.assertEqual(tcp_obj['product'], 'Pure-FTPd')
+            self.assertEqual(tcp_obj['product'], 'PureFTPd')
             self.assertEqual(tcp_obj['version'], '')
             self.assertEqual(tcp_obj['cpe'],     'cpe:/a:pureftpd:pure-ftpd')
         finally:

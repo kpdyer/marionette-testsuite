@@ -257,8 +257,8 @@ def eval_plugin_output(nessus_output, plugin_id, protocol, port, svc_name, finge
         right_plugin_id = int(item.attributes['pluginID'].value) == int(plugin_id)
         right_protocol  = str(item.attributes['protocol'].value) == str(protocol)
         right_port      = int(item.attributes['port'].value)     == int(port)
-        right_svc      = str(item.attributes['svc_name'].value) == str(svc_name)
-        if right_plugin_id and right_port and right_protocol and right_svc:
+        right_svc       = str(item.attributes['svc_name'].value) == str(svc_name)
+        if right_plugin_id and right_port and right_protocol:# and right_svc:
             for child in item.getElementsByTagName('plugin_output'):
                 if child.firstChild.nodeValue:
                     plugin_output = child.firstChild.nodeValue
@@ -270,6 +270,7 @@ def eval_plugin_output(nessus_output, plugin_id, protocol, port, svc_name, finge
 def do_scan(target):
     global token
 
+    token = ''
     token = login(username, password)
 
     policies = get_policies()
