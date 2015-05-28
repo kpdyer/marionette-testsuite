@@ -34,7 +34,6 @@ class Tests(unittest.TestCase):
             nm.scan(remote_host, remote_port)
             tcp_obj = nm[remote_host].tcp(int(remote_port))
 
-            print tcp_obj
             self.assertEqual(tcp_obj['name'],    'ssh')
             self.assertEqual(tcp_obj['product'], '')
             self.assertEqual(tcp_obj['version'], '')
