@@ -288,4 +288,6 @@ def do_scan(target):
 
     logout()
 
+    token = ''
+
     return data
