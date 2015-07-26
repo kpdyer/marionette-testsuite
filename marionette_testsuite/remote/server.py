@@ -12,17 +12,17 @@ def execute(cmd):
     os.system(cmd)
 
 def startservers(format):
-    server_proxy_iface = marionette_tg.conf.get("server.proxy_iface")
-    httpserver = os.path.join(os.path.dirname(os.path.realpath(__file__)), "httpserver")
-    execute("%s 18081 &" % httpserver)
-    execute("marionette_server %s 18081 %s &" %
-            (server_proxy_iface, format))
+    server_proxy_ip = marionette_tg.conf.get("server.proxy_ip")
+    httpserver = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                              "httpserver --local_port 18081 &")
+    execute(httpserver)
+    execute("marionette_server  --proxy_ip %s --proxy_port 18081 --format %s &" %
+            (server_proxy_ip, format))
     time.sleep(1)
 
 def stopservers():
     execute("pkill -9 -f marionette_server")
     execute("pkill -9 -f httpserver")
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

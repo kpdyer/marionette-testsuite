@@ -16,10 +16,10 @@ def execute(cmd):
 class Tests(unittest.TestCase):
 
     def startservers(self, format):
-        server_proxy_iface = marionette_tg.conf.get("server.proxy_iface")
+        server_proxy_ip = marionette_tg.conf.get("server.proxy_ip")
 
-        execute("marionette_server %s 8888 %s &" %
-                (server_proxy_iface, format))
+        execute("marionette_server --proxy_ip %s --proxy_port 8888 --format %s &" %
+                (server_proxy_ip, format))
         time.sleep(0.25)
 
     def stopservers(self):
