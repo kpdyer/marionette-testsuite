@@ -10,6 +10,7 @@ import threading
 
 sys.path.append('.')
 
+import argparse
 import marionette_tg.conf
 
 
