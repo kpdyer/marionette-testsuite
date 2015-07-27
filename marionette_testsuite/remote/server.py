@@ -12,12 +12,13 @@ def execute(cmd):
     os.system(cmd)
 
 def startservers(format):
-    server_proxy_ip = marionette_tg.conf.get("server.proxy_ip")
+    proxy_ip = marionette_tg.conf.get("server.proxy_ip")
+    server_ip = marionette_tg.conf.get("server.server_ip")
     httpserver = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                               "httpserver --local_port 18081 &")
     execute(httpserver)
-    execute("marionette_server  --proxy_ip %s --proxy_port 18081 --format %s &" %
-            (server_proxy_ip, format))
+    execute("marionette_server  --proxy_ip %s --proxy_port 18081 --server_ip %s --format %s &" %
+            (proxy_ip, server_ip, format))
     time.sleep(1)
 
 def stopservers():
