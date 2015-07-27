@@ -19,9 +19,9 @@ def execute(cmd):
 
 
 def exec_download():
-    client_client_ip = marionette_tg.conf.get("client.client_ip")
+    client_ip = marionette_tg.conf.get("client.client_ip")
     conn = httplib.HTTPConnection(
-        client_client_ip, 18079, False, timeout=30)
+        client_ip, 18079, False, timeout=30)
     conn.request("GET", "/")
     response = conn.getresponse()
     actual_response = response.read()
@@ -88,7 +88,7 @@ class CliTest(ParametrizedTestCase):
         if self.param:
             try:
                 format = self.param
-                #self.startservers(format)
+                self.startservers(format)
                 self.dodownload_serial()
                 self.dodownload_parallel()
                 sys.stdout.write(format+' ')
