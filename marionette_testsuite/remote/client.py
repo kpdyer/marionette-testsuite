@@ -62,13 +62,12 @@ class CliTest(ParametrizedTestCase):
         client_client_ip = marionette_tg.conf.get("client.client_ip")
         server_proxy_ip = marionette_tg.conf.get("server.proxy_ip")
 
-        execute("./bin/marionette_client %s 18079 %s &" %
+        execute("marionette_client --client_ip %s --client_port 18079 --format %s &" %
                 (client_client_ip, format))
         time.sleep(5)
 
     def stopservers(self):
         execute("pkill -9 -f marionette_client")
-        execute("pkill -9 -f httpserver")
 
     def dodownload_serial(self):
         exec_download()
@@ -98,24 +97,14 @@ class CliTest(ParametrizedTestCase):
             finally:
                 self.stopservers()
 
-suite = unittest.TestSuite()
-for param in [
-        'dummy',
-        'http_timings',
-        'ftp_simple_blocking',
-        'http_simple_blocking',
-        'http_simple_blocking:20150701', # tests in-band nego.
-        'http_simple_blocking:20150702', # tests in-band nego.
-        'http_squid_blocking',
-        'http_simple_nonblocking',
-        'http_probabilistic_blocking',
-        'http_simple_blocking_with_msg_lens',
-        'ssh_simple_nonblocking',
-        'smb_simple_nonblocking',
-        'http_active_probing',
-        'http_active_probing2',
-        'active_probing/http_apache_247',
-        'active_probing/ssh_openssh_661',
-        'active_probing/ftp_pureftpd_10',]:
-        suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=param))
-unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("format",
+                        nargs='?',
+                        help="Format for Marionette to load",
+                        default="dummy")
+    args = parser.parse_args()
+    # Configure the tests suite
+    suite = unittest.TestSuite()
+    suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=args.format))
+    unittest.TextTestRunner(verbosity=2).run(suite)
