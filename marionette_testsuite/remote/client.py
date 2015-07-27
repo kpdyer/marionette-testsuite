@@ -60,11 +60,11 @@ class ParametrizedTestCase(unittest.TestCase):
 class CliTest(ParametrizedTestCase):
 
     def startservers(self, format):
-        client_client_ip = marionette_tg.conf.get("client.client_ip")
-        server_proxy_ip = marionette_tg.conf.get("server.proxy_ip")
+        client_ip = marionette_tg.conf.get("client.client_ip")
+        server_ip = marionette_tg.conf.get("server.proxy_ip")
 
-        execute("marionette_client --client_ip %s --client_port 18079 --format %s &" %
-                (client_client_ip, format))
+        execute("marionette_client --client_ip %s --client_port 18079 --server_ip %s --format %s &" %
+                (client_ip, server_ip, format))
         time.sleep(5)
 
     def stopservers(self):
