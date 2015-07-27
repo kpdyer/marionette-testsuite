@@ -61,7 +61,7 @@ class CliTest(ParametrizedTestCase):
 
     def startservers(self, format):
         client_ip = marionette_tg.conf.get("client.client_ip")
-        server_ip = marionette_tg.conf.get("server.proxy_ip")
+        server_ip = marionette_tg.conf.get("server.server_ip")
 
         execute("marionette_client --client_ip %s --client_port 18079 --server_ip %s --format %s &" %
                 (client_ip, server_ip, format))
