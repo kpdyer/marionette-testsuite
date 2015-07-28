@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+import subprocess
 import unittest
 import time
 
@@ -9,7 +10,7 @@ import argparse
 import marionette_tg.conf
 
 def execute(cmd):
-    os.system(cmd)
+    subprocess.Popen(["nohup", "python", cmd])
 
 def startservers(format):
     proxy_ip = marionette_tg.conf.get("server.proxy_ip")
