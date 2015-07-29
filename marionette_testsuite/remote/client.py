@@ -90,7 +90,8 @@ class CliTest(ParametrizedTestCase):
                 format = self.param
                 self.startservers(format)
                 self.dodownload_serial()
-                self.dodownload_parallel()
+                # Not necessary at this time
+                #self.dodownload_parallel()
                 sys.stdout.write(format+' ')
                 sys.stdout.flush()
             except Exception as e:
