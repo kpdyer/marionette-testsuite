@@ -24,32 +24,33 @@ def exec_timing_test():
     server_ip = marionette_tg.conf.get("server.server_ip")
     http_server_ip = server_ip + ":18080"
     proxy_ip = marionette_tg.conf.get("server.proxy_ip")
+    print
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
             http_server_ip, proxy_ip, 18079, server_ip, 18081, length=8, direction='down', iterations=5)
     print "Direction: down"
-    print "\tLength: 8\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+    print "\tLength: 914B\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=10, direction='down', iterations=5)
-    print "\tLength: 16\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=16, direction='down', iterations=5)
+    print "\tLength: 373KB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=18, direction='down', iterations=5)
-    print "\tLength: 20\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=20, direction='down', iterations=5)
+    print "\tLength: 6.9MB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
 
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
             http_server_ip, proxy_ip, 18079, server_ip, 18081, length=8, direction='up', iterations=5)
     print "Direction: up"
-    print "\tLength: 8\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+    print "\tLength: 914B\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=10, direction='up', iterations=5)
-    print "\tLength: 16\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=16, direction='up', iterations=5)
+    print "\tLength: 373KB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
     (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=18, direction='up', iterations=5)
-    print "\tLength: 20\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
+            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=20, direction='up', iterations=5)
+    print "\tLength: 6.9MB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
     print "\tSlowdown:", mar_avg/direct_avg
 
 
@@ -116,9 +117,16 @@ class CliTest(ParametrizedTestCase):
             finally:
                 self.stopservers()
 
-#TODO: ftp_simple_blocking is hanging after ~50MB
-suite = unittest.TestSuite()
-for param in [
+
+parser = argparse.ArgumentParser(
+            description='Generates traffic and sends through formats to get timing.')
+parser.add_argument('--format', '-f', dest='formats', required=False, action='append',
+            help='Format to run test (can be passed multiple times).')
+args = parser.parse_args()
+
+if args.formats == None:
+    formats = [
+        #TODO: ftp_simple_blocking is hanging after ~50MB
         #'ftp_simple_blocking',
         'http_simple_blocking',
         'http_simple_blocking:20150701', # tests in-band nego.
@@ -135,7 +143,14 @@ for param in [
         'http_active_probing2',
         'active_probing/http_apache_247',
         'active_probing/ssh_openssh_661',
-        'active_probing/ftp_pureftpd_10']:
-        suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=param))
+        'active_probing/ftp_pureftpd_10'
+        ]
+else:
+    formats = args.formats
+
+
+suite = unittest.TestSuite()
+for param in formats:
+    suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=param))
 unittest.TextTestRunner(verbosity=2).run(suite)
 

@@ -106,8 +106,8 @@ def getAverageTransferTime(http_server, mar_proxy, mar_proxy_port, direct_proxy,
         if direct:
             direct_times.insert(i, direct_end - direct_start)
         else:
-            print "ERROR: 999999"
-            direct_times.insert(i, 999999)
+            print "ERROR: Direct transfer: -1"
+            direct_times.insert(i, -1)
         print ".",
         sys.stdout.flush()
 
@@ -121,8 +121,8 @@ def getAverageTransferTime(http_server, mar_proxy, mar_proxy_port, direct_proxy,
         if mar:
             mar_times.insert(i, mar_end - mar_start)
         else:
-            print "ERROR: 999999"
-            mar_times.insert(i, 999999)
+            print "ERROR: Marionette transfer: -1"
+            mar_times.insert(i, -1)
         print ".",
         sys.stdout.flush()
     print
@@ -133,8 +133,14 @@ def getAverageTransferTime(http_server, mar_proxy, mar_proxy_port, direct_proxy,
     mar_avg = 0
     # Throw out fastest and slowest
     for i in range(1, iterations-1):
-        direct_avg += direct_times[i]
-        mar_avg += mar_times[i]
+        if direct_times[i] == -1:
+            iterations -= 1
+        else:
+            direct_avg += direct_times[i]
+        if mar_times[i] == -1:
+            iterations -= 1
+        else:
+            mar_avg += mar_times[i]
     direct_avg = direct_avg/(iterations-2)
     mar_avg = mar_avg/(iterations-2)
     return (mar_avg, direct_avg)
