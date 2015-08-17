@@ -11,7 +11,7 @@ import httpclient
 
 sys.path.append('.')
 #TODO: For local testing
-#sys.path.append('/Users/charlietanzini/work/tmp/marionette')
+sys.path.append('/Users/charlietanzini/work/tmp/marionette')
 
 import argparse
 import marionette_tg.conf
@@ -20,38 +20,53 @@ import marionette_tg.conf
 def execute(cmd):
     os.system(cmd)
 
-def exec_timing_test():
-    server_ip = marionette_tg.conf.get("server.server_ip")
-    http_server_ip = server_ip + ":18080"
-    proxy_ip = marionette_tg.conf.get("server.proxy_ip")
-    print
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=8, direction='down', iterations=5)
-    print "Direction: down"
-    print "\tLength: 914B\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=16, direction='down', iterations=5)
-    print "\tLength: 373KB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=20, direction='down', iterations=5)
-    print "\tLength: 6.9MB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
 
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=8, direction='up', iterations=5)
-    print "Direction: up"
-    print "\tLength: 914B\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=16, direction='up', iterations=5)
-    print "\tLength: 373KB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
-    (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
-            http_server_ip, proxy_ip, 18079, server_ip, 18081, length=20, direction='up', iterations=5)
-    print "\tLength: 6.9MB\tMarionette average: %s\tDirect average: %s" % (mar_avg, direct_avg)
-    print "\tSlowdown:", mar_avg/direct_avg
+def exec_download(param):
+    mar_socksproxy_ip = marionette_tg.conf.get("client.client_ip")
+    mar_socksproxy_port = marionette_tg.conf.get("client.client_port")
+    direct_socksproxy_ip = marionette_tg.conf.get("server.proxy_ip")
+    direct_socksproxy_port = marionette_tg.conf.get("server.proxy_port")
+
+    http_server = param.http_server
+    iterations = param.iterations
+    outfile = param.outfile
+    powers = param.powers
+    fp = open(outfile, "w")
+
+    print
+
+    fp.write("Power\tDirection\tMarionette average\tDirect average\t\t\tSlowdown\n")
+    for p in powers:
+
+        (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
+                http_server, 
+                mar_socksproxy_ip, 
+                mar_socksproxy_port, 
+                direct_socksproxy_ip, 
+                direct_socksproxy_port, 
+                length=p, 
+                direction="down", 
+                iterations=iterations)
+        print "Power: %s\tDirection: %s\tMarionette average: %s\tDirect average: %s\tSlowdown: %s\n" % (
+            p, "down", mar_avg, direct_avg, mar_avg/direct_avg)
+        fp.write("%-5s\t%-9s\t%-18s\t%-20s\t%s\n" % (
+            p, "down", mar_avg, direct_avg, mar_avg/direct_avg))
+
+        (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
+                http_server, 
+                mar_socksproxy_ip, 
+                mar_socksproxy_port, 
+                direct_socksproxy_ip, 
+                direct_socksproxy_port, 
+                length=p, 
+                direction="up", 
+                iterations=iterations)
+        print "Power: %s\tDirection %s\tMarionette average: %s\tDirect average: %s\tSlowdown: %s\n" % (
+            p, "up", mar_avg, direct_avg, mar_avg/direct_avg)
+        fp.write("%-5s\t%-9s\t%-18s\t%-20s\t%s\n" % (
+            p, "up", mar_avg, direct_avg, mar_avg/direct_avg))
+
+    fp.close()
 
 
 class ParametrizedTestCase(unittest.TestCase):
@@ -79,37 +94,25 @@ class CliTest(ParametrizedTestCase):
 
     def startservers(self, format):
         client_ip = marionette_tg.conf.get("client.client_ip")
+        client_port = marionette_tg.conf.get("client.client_port")
         server_ip = marionette_tg.conf.get("server.server_ip")
-        proxy_ip = marionette_tg.conf.get("server.proxy_ip")
 
-        #TODO: Should some of these be started using ansible?
-        execute("./httpserver -lport 18080 &")
-        execute("socksserver -lport 18081 &")
-        execute("marionette_server --server_ip %s --proxy_ip %s --proxy_port 18081 --format %s &" %
-                (server_ip, proxy_ip, format))
-        time.sleep(5)
-        execute("marionette_client --client_ip %s --client_port 18079 --server_ip %s --format %s &" %
-                (client_ip, server_ip, format))
+        execute("marionette_client --client_ip %s --client_port %s --server_ip %s --format %s &" %
+                (client_ip, client_port, server_ip, format))
         time.sleep(5)
 
     def stopservers(self):
         execute("pkill -9 -f marionette_client")
-        execute("pkill -9 -f marionette_server")
-        execute("pkill -9 -f socksserver")
-        execute("pkill -9 -f httpserver")
-    
-        #print "Sleeping 5..."
-        time.sleep(5)
 
-    def do_timing_test(self):
-        exec_timing_test()
+    def dodownload(self, param):
+        exec_download(param)
 
     def test_cli_curl(self):
         if self.param:
             try:
-                format = self.param
+                format = self.param.format
                 self.startservers(format)
-                self.do_timing_test()
+                self.dodownload(self.param)
                 sys.stdout.write(format+' ')
                 sys.stdout.flush()
             except Exception as e:
@@ -117,40 +120,44 @@ class CliTest(ParametrizedTestCase):
             finally:
                 self.stopservers()
 
+if __name__ == '__main__':
+    
+    parser = argparse.ArgumentParser(
+        description='Respond to HTTP requests with integer strings.')
+    parser.add_argument('--http_server', '-s', dest='http_server', required=False,
+        default="127.0.0.1:8080", help='HTTP Server addres')
+    parser.add_argument('--powers', '-p', dest='powers', required=True, 
+        action='append', help='Power of 2 to generate power string length (between 1-25)')
+    parser.add_argument('--socksproxy_server', '-sp', dest='socksproxy_server', required=False,
+        help='Socks proxy server address')
+    parser.add_argument('--socksproxy_port', '-spport', dest='socksproxy_port', required=False,
+        help='Socks proxy server port')
+    parser.add_argument('--direct_socksproxy_server', '-dsp', dest='direct_socksproxy', required=False,
+        help='Direct socks proxy server address (without Marionette layer)')
+    parser.add_argument('--direct_socksproxy_port', '-dspport', dest='direct_socksproxy_port', required=False,
+        help='Direct socks proxy server port')
+    parser.add_argument('--iterations', '-i', dest='iterations', required=False,
+        type=int, default=5, help='Number of iterations to average over')
+    parser.add_argument('--format', '-f', dest='format', required=False,
+        default="dummy", help="Format for Marionette to load")
+    parser.add_argument('--write', '-w', dest='outfile', required=False,
+        default="/tmp/timing_test.out", help="Write outout to file")
+    args = parser.parse_args()
 
-parser = argparse.ArgumentParser(
-            description='Generates traffic and sends through formats to get timing.')
-parser.add_argument('--format', '-f', dest='formats', required=False, action='append',
-            help='Format to run test (can be passed multiple times).')
-args = parser.parse_args()
-
-if args.formats == None:
-    formats = [
-        #TODO: ftp_simple_blocking is hanging after ~50MB
-        #'ftp_simple_blocking',
-        'http_simple_blocking',
-        'http_simple_blocking:20150701', # tests in-band nego.
-        'http_simple_blocking:20150702', # tests in-band nego.
-        'dummy',
-        'http_squid_blocking',
-        'http_timings',
-        'http_probabilistic_blocking',
-        'http_simple_nonblocking',
-        'ssh_simple_nonblocking',
-        'smb_simple_nonblocking',
-        'http_simple_blocking_with_msg_lens',
-        'http_active_probing',
-        'http_active_probing2',
-        'active_probing/http_apache_247',
-        'active_probing/ssh_openssh_661',
-        'active_probing/ftp_pureftpd_10'
-        ]
-else:
-    formats = args.formats
+    if args.direct_socksproxy != None:
+        marionette_tg.conf.set('server.proxy_ip', str(args.direct_socksproxy))
+    if args.direct_socksproxy_port != None:
+        marionette_tg.conf.set('server.proxy_port', int(args.direct_socksproxy_port))
+    if args.socksproxy_server != None:
+        marionette_tg.conf.set('client.client_ip', str(args.socksproxy_server))
+    if args.socksproxy_port != None:
+        marionette_tg.conf.set('client.client_port', int(args.socksproxy_port))
+    if args.format != None:
+        marionette_tg.conf.set('general.format', str(args.format))
 
 
-suite = unittest.TestSuite()
-for param in formats:
-    suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=param))
-unittest.TextTestRunner(verbosity=2).run(suite)
 
+    # Configure the tests suite
+    suite = unittest.TestSuite()
+    suite.addTest(ParametrizedTestCase.parametrize(CliTest, param=args))
+    unittest.TextTestRunner(verbosity=2).run(suite)

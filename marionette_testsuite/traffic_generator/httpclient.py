@@ -141,8 +141,11 @@ def getAverageTransferTime(http_server, mar_proxy, mar_proxy_port, direct_proxy,
             iterations -= 1
         else:
             mar_avg += mar_times[i]
-    direct_avg = direct_avg/(iterations-2)
-    mar_avg = mar_avg/(iterations-2)
+    extremes = 2
+    if iterations < 3:
+        extremes = 0
+    direct_avg = direct_avg/(iterations-extremes)
+    mar_avg = mar_avg/(iterations-extremes)
     return (mar_avg, direct_avg)
 
 if __name__ == "__main__":
