@@ -21,7 +21,7 @@ def execute(cmd):
 def exec_download():
     client_ip = marionette_tg.conf.get("client.client_ip")
     conn = httplib.HTTPConnection(
-        client_ip, 18079, False, timeout=30)
+        client_ip, 18079, False, timeout=60)
     conn.request("GET", "/")
     response = conn.getresponse()
     actual_response = response.read()
