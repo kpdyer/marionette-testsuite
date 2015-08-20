@@ -43,10 +43,9 @@ def httpGet(http_server, proxy, proxy_port, length):
     try:
         c.perform()
     except pycurl.error, e:
-        #TODO: Why is this failing??
         print "pycurl error tries", str(e.args)
         if e[1] == 'Failed to receive SOCKS4 connect request ack.':
-            print 'could not connect to proxy sleeping 5 seconds'
+            print 'could not connect to proxy sleeping 3 seconds'
             time.sleep(3)
             c.perform()
     c.close()
@@ -179,6 +178,4 @@ if __name__ == "__main__":
     print "Average Direct connection POST time:\t", direct_avg
     print "Average Marionette connection POST time:\t", mar_avg
     print "Slowdown =", mar_avg/direct_avg
-    #httpGet(args.server, args.proxy, int(args.proxy_port), args.length)
-    #httpPost(args.server, args.proxy, int(args.proxy_port), args.length)
 

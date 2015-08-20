@@ -9,8 +9,6 @@ from twisted.protocols import socks
 from twisted.python import log
 
 sys.path.append('.')
-#TODO: For testing
-#sys.path.append('/Users/charlietanzini/work/tmp/marionette')
 
 import marionette_tg.conf
 

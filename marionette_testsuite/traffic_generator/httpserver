@@ -16,8 +16,6 @@ from twisted.web.server import NOT_DONE_YET
 
 
 sys.path.append('.')
-#TODO: For local testing
-#sys.path.append('/Users/charlietanzini/work/tmp/marionette')
 
 import marionette_tg.conf
 

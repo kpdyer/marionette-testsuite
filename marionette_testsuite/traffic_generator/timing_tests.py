@@ -10,8 +10,6 @@ import threading
 import httpclient
 
 sys.path.append('.')
-#TODO: For local testing
-sys.path.append('/Users/charlietanzini/work/tmp/marionette')
 
 import argparse
 import marionette_tg.conf
@@ -35,7 +33,7 @@ def exec_download(param):
 
     print
 
-    fp.write("Power\tDirection\tMarionette average\tDirect average\t\t\tSlowdown\n")
+    fp.write("Power\tDirection\tMarionette average\tDirect average\t\tSlowdown\n")
     for p in powers:
 
         (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
