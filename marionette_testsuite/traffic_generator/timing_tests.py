@@ -60,7 +60,7 @@ def exec_download(param):
                 direction="up", 
                 iterations=iterations)
         fp.write("%-5s\t%-9s\t%-14s\t%-17s\t%-18s\t%-14s\t%-14s\t%-14s\t%-14s\t%-10s\t%s\n" % (
-            p, "down", mar_speed_results[0], mar_speed_results[1], mar_speed_results[2], mar_speed_results[3],
+            p, "up", mar_speed_results[0], mar_speed_results[1], mar_speed_results[2], mar_speed_results[3],
             direct_speed_results[0], direct_speed_results[1], direct_speed_results[2], direct_speed_results[3], 
             direct_speed_results[2]/mar_speed_results[2]))
 
