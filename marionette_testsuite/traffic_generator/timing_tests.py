@@ -33,10 +33,10 @@ def exec_download(param):
 
     print
 
-    fp.write("Power\tDirection\tMarionette average\tDirect average\t\tSlowdown\n")
+    fp.write("Power\tDirection\tMarionette min\tMarionette median\tMarionette average\tMarionette max\tDirect min    \tDirect median\tDirect average\tDirect max\tSlowdown\n")
     for p in powers:
 
-        (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
+        (mar_speed_results, direct_speed_results, mar_latency_results, direct_latency_results) = httpclient.getAverageTransferSpeed(
                 http_server, 
                 mar_socksproxy_ip, 
                 mar_socksproxy_port, 
@@ -45,12 +45,12 @@ def exec_download(param):
                 length=p, 
                 direction="down", 
                 iterations=iterations)
-        print "Power: %s\tDirection: %s\tMarionette average: %s\tDirect average: %s\tSlowdown: %s\n" % (
-            p, "down", mar_avg, direct_avg, mar_avg/direct_avg)
-        fp.write("%-5s\t%-9s\t%-18s\t%-20s\t%s\n" % (
-            p, "down", mar_avg, direct_avg, mar_avg/direct_avg))
+        fp.write("%-5s\t%-9s\t%-14s\t%-17s\t%-18s\t%-14s\t%-14s\t%-14s\t%-14s\t%-10s\t%s\n" % (
+            p, "down", mar_speed_results[0], mar_speed_results[1], mar_speed_results[2], mar_speed_results[3],
+            direct_speed_results[0], direct_speed_results[1], direct_speed_results[2], direct_speed_results[3], 
+            direct_speed_results[2]/mar_speed_results[2]))
 
-        (mar_avg, direct_avg) = httpclient.getAverageTransferTime(
+        (mar_speed_results, direct_speed_results, mar_latency_results, direct_latency_results) = httpclient.getAverageTransferSpeed(
                 http_server, 
                 mar_socksproxy_ip, 
                 mar_socksproxy_port, 
@@ -59,10 +59,26 @@ def exec_download(param):
                 length=p, 
                 direction="up", 
                 iterations=iterations)
-        print "Power: %s\tDirection %s\tMarionette average: %s\tDirect average: %s\tSlowdown: %s\n" % (
-            p, "up", mar_avg, direct_avg, mar_avg/direct_avg)
-        fp.write("%-5s\t%-9s\t%-18s\t%-20s\t%s\n" % (
-            p, "up", mar_avg, direct_avg, mar_avg/direct_avg))
+        fp.write("%-5s\t%-9s\t%-14s\t%-17s\t%-18s\t%-14s\t%-14s\t%-14s\t%-14s\t%-10s\t%s\n" % (
+            p, "down", mar_speed_results[0], mar_speed_results[1], mar_speed_results[2], mar_speed_results[3],
+            direct_speed_results[0], direct_speed_results[1], direct_speed_results[2], direct_speed_results[3], 
+            direct_speed_results[2]/mar_speed_results[2]))
+
+    fp.write("\n\nLatency Results (in ms):\n")
+    fp.write("Marionette min\tMarionette median\tMarionette average\tMarionette max\tDirect min    \tDirect median\tDirect average\tDirect max\n")
+    (mar_speed_results, direct_speed_results, mar_latency_results, direct_latency_results) = httpclient.getAverageTransferSpeed(
+            http_server, 
+            mar_socksproxy_ip, 
+            mar_socksproxy_port, 
+            direct_socksproxy_ip, 
+            direct_socksproxy_port, 
+            length=1,
+            direction="down",
+            iterations=iterations)
+
+    fp.write("%-14s\t%-17s\t%-18s\t%-14s\t%-14s\t%-14s\t%-14s\t%-10s\n" % (
+        mar_latency_results[0], mar_latency_results[1], mar_latency_results[2], mar_latency_results[3],
+        direct_latency_results[0], direct_latency_results[1], direct_latency_results[2], direct_latency_results[3]))
 
     fp.close()
 
