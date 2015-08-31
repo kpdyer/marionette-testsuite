@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import sys
+import argparse
+import itertools
+import tempfile
+import os
+
+from twisted.web import server, resource
+from twisted.internet import reactor
+from twisted.python import log
+from twisted.protocols.basic import FileSender
+from twisted.python.log import err
+from twisted.web.server import NOT_DONE_YET
+
+
+sys.path.append('.')
+
+import marionette_tg.conf
+
+parser = argparse.ArgumentParser(
+    description='Respond to HTTP requests with integer strings.')
+parser.add_argument('--local_port', '-lport', dest='local_port', required=True,
+    help='local port to listen on for HTTP requests')
+args = parser.parse_args()
+
+LOCAL_PORT = int(args.local_port)
+
+def getMsgYield(requested_length):
+    retval = ''
+    try:
+        power = int(requested_length)
+        if power > 25:
+            raise Exception("Too large")
+    except:
+        power = 18
+    for x in xrange(2**power):
+        yield '_'
+        for ch in str(x):
+            yield ch
+
+
+class GetResource(resource.Resource):
+    isLeaf = True
+
+    def render_GET(self, request):
+        if int(request.uri[1:]) > 25:
+            return "FAILURE: Invalid request"
+
+        msgGen = getMsgYield(request.uri[1:])
+        validfile = tempfile.NamedTemporaryFile(delete=False)
+        for ch in msgGen:
+            validfile.write(ch)
+        validfile.close()
+
+        request.setHeader('Content-Type', 'text/plain')
+        fp = open(validfile.name, 'rb')
+        d = FileSender().beginFileTransfer(fp, request)
+        def cbFinished(ignored):
+            fp.close()
+            os.unlink(fp.name)
+            request.finish()
+        d.addErrback(err).addCallback(cbFinished)
+        return NOT_DONE_YET
+    
+    def render_POST(self, request):
+        if int(request.uri[1:]) > 25:
+            return "FAILURE: Invalid request"
+
+        postval = getMsgYield(request.uri[1:])
+        if all(ex == rd for ex, rd in itertools.izip(postval, request.args["posted"][0])):
+            return "OK"
+        else:
+            return "FAIL"
+
+if __name__ == "__main__":
+    if marionette_tg.conf.get("general.debug"):
+        log.startLogging(sys.stdout)
+
+    reactor.listenTCP(LOCAL_PORT, server.Site(GetResource()))
+    reactor.run()
